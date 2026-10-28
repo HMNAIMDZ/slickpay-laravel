@@ -119,3 +119,4 @@ This fork is used by the MCC application. Changes from upstream:
 - TLS verification is enabled on every request (`CURLOPT_SSL_VERIFYHOST = 2`, `CURLOPT_SSL_VERIFYPEER = true`); upstream disables host verification.
 - `update()` sends a real `PUT` request (upstream sent a `POST`).
 - A cURL failure (DNS, TLS, timeout) is reported as `status: 0` with an `errors.transport` entry instead of raising a type error, so callers can tell a transport failure from an API refusal.
+- Every request sends a `User-Agent` (`config('slickpay.user_agent')`, a default otherwise): the API firewall answers `403` with an empty body to requests without one, which is PHP cURL's default.

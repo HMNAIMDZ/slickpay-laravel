@@ -36,6 +36,7 @@ class Core
             curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cURL, CURLOPT_USERAGENT, Core::userAgent());
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
 
@@ -88,6 +89,7 @@ class Core
         curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($cURL, CURLOPT_USERAGENT, Core::userAgent());
         curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
 
@@ -135,6 +137,7 @@ class Core
             curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cURL, CURLOPT_USERAGENT, Core::userAgent());
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
 
@@ -191,6 +194,7 @@ class Core
             curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cURL, CURLOPT_USERAGENT, Core::userAgent());
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
 
@@ -246,6 +250,7 @@ class Core
             curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cURL, CURLOPT_USERAGENT, Core::userAgent());
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
 
@@ -297,6 +302,7 @@ class Core
             curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
             curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($cURL, CURLOPT_USERAGENT, Core::userAgent());
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
 
@@ -392,5 +398,16 @@ class Core
         if (!$failed && isset($response['data']['data'])) unset($response['data']['data']);
 
         return $response;
+    }
+
+    /**
+     * The API firewall answers 403 (empty body) to requests that carry no
+     * User-Agent, which is cURL's default in PHP.
+     *
+     * @return string
+     */
+    public static function userAgent(): string
+    {
+        return (string) config('slickpay.user_agent', 'slickpay-laravel/mcc (+https://github.com/HMNAIMDZ/slickpay-laravel)');
     }
 }
