@@ -33,7 +33,8 @@ class Core
                 "Accept: application/json",
                 "Authorization: Bearer {$public_key}",
             ));
-            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
@@ -47,7 +48,7 @@ class Core
         } catch (\Exception $e) {
 
             return [
-                'status' => $status,
+                'status' => $status ?? 0,
                 'data'   => null,
                 'errors' => [
                     $e->getMessage()
@@ -84,7 +85,8 @@ class Core
             "Content-Type: application/json",
             "Authorization: Bearer {$public_key}",
         ]);
-        curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, false);
+        curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
         curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
         curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
         curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
@@ -130,7 +132,8 @@ class Core
                 "Accept: application/json",
                 "Authorization: Bearer {$public_key}",
             ));
-            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
@@ -144,7 +147,7 @@ class Core
         } catch (\Exception $e) {
 
             return [
-                'status' => $status,
+                'status' => $status ?? 0,
                 'data'   => null,
                 'errors' => [
                     $e->getMessage()
@@ -185,7 +188,8 @@ class Core
                 "Accept: application/json",
                 "Authorization: Bearer {$public_key}",
             ));
-            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
@@ -199,7 +203,7 @@ class Core
         } catch (\Exception $e) {
 
             return [
-                'status' => $status,
+                'status' => $status ?? 0,
                 'data'   => null,
                 'errors' => [
                     $e->getMessage()
@@ -231,6 +235,7 @@ class Core
             $cURL = curl_init();
 
             curl_setopt($cURL, CURLOPT_URL, self::url("{$url}/{$id}"));
+            curl_setopt($cURL, CURLOPT_CUSTOMREQUEST, 'PUT');
             curl_setopt($cURL, CURLOPT_POSTFIELDS, json_encode($data));
             curl_setopt($cURL, CURLOPT_HTTPHEADER, array(
                 "Accept: application/json",
@@ -238,7 +243,8 @@ class Core
 
                 "Authorization: Bearer {$public_key}",
             ));
-            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
@@ -252,7 +258,7 @@ class Core
         } catch (\Exception $e) {
 
             return [
-                'status' => $status,
+                'status' => $status ?? 0,
                 'data'   => null,
                 'errors' => [
                     $e->getMessage()
@@ -288,7 +294,8 @@ class Core
                 "Authorization: Bearer {$public_key}",
             ));
             curl_setopt($cURL, CURLOPT_CUSTOMREQUEST, 'DELETE');
-            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, false);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYHOST, 2);
+            curl_setopt($cURL, CURLOPT_SSL_VERIFYPEER, true);
             curl_setopt($cURL, CURLOPT_RETURNTRANSFER, true);
             curl_setopt($cURL, CURLOPT_CONNECTTIMEOUT, 3);
             curl_setopt($cURL, CURLOPT_TIMEOUT, 20);
@@ -302,7 +309,7 @@ class Core
         } catch (\Exception $e) {
 
             return [
-                'status' => $status,
+                'status' => $status ?? 0,
                 'data'   => null,
                 'errors' => [
                     $e->getMessage()
@@ -356,8 +363,19 @@ class Core
      * @param  string  $error  Last error for the current cURL session
      * @return array
      */
-    public static function response(int $status, string $data, string $error): array
+    public static function response(int $status, string|bool $data, string $error): array
     {
+        // cURL failure (DNS, TLS, timeout): curl_exec() returned false and no
+        // HTTP status exists. Report it as status 0 so callers can tell a
+        // transport failure from an API refusal.
+        if ($data === false || $status === 0) {
+            return [
+                'data'   => null,
+                'status' => 0,
+                'errors' => ['transport' => [$error !== '' ? $error : 'No response from Slick-Pay.']],
+            ];
+        }
+
         $failed = false;
         $json = json_decode($data, true);
 

@@ -112,3 +112,10 @@ Available classes :
 
 * [Slick-Pay website](https://slick-pay.com)
 * [Reporting Issues / Feature Requests](https://github.com/Slick-Pay-Algeria/slickpay-laravel/issues)
+## Fork MCC
+
+This fork is used by the MCC application. Changes from upstream:
+
+- TLS verification is enabled on every request (`CURLOPT_SSL_VERIFYHOST = 2`, `CURLOPT_SSL_VERIFYPEER = true`); upstream disables host verification.
+- `update()` sends a real `PUT` request (upstream sent a `POST`).
+- A cURL failure (DNS, TLS, timeout) is reported as `status: 0` with an `errors.transport` entry instead of raising a type error, so callers can tell a transport failure from an API refusal.
